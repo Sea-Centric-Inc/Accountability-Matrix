@@ -1,0 +1,11 @@
+{
+  "_comment": "Map each logical field to the EXACT column title (case-sensitive) as it appears in your Smartsheet. A field can be a single title, an array of titles (joined together), or \"\" if you don't have that column.",
+  "task": "Task / Deliverable",
+  "category": "",
+  "responsible": "Responsible",
+  "accountable": "Accountable",
+  "consulted": "Consulted",
+  "informed": "Informed",
+  "status": "Status",
+  "dueDate": "Due Date"
+}

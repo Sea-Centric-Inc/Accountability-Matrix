@@ -1,0 +1,12 @@
+{
+  "name": "accountability-matrix",
+  "version": "1.0.0",
+  "description": "RACI-style accountability matrix, sourced from Smartsheet and hosted as a static site.",
+  "private": true,
+  "scripts": {
+    "fetch-data": "node scripts/fetch-smartsheet.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

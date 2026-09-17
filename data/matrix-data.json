@@ -1,0 +1,67 @@
+{
+  "generatedAt": "2026-09-17T00:00:00Z",
+  "source": "sample",
+  "sheetName": "Accountability Matrix (sample data)",
+  "items": [
+    {
+      "id": "1",
+      "task": "Finalize vessel charter agreement",
+      "category": "Commercial",
+      "responsible": "Jane Doe",
+      "accountable": "John Smith",
+      "consulted": "Legal Team",
+      "informed": "Finance",
+      "status": "In Progress",
+      "dueDate": "2026-09-30",
+      "link": ""
+    },
+    {
+      "id": "2",
+      "task": "Submit environmental compliance report",
+      "category": "Compliance",
+      "responsible": "Mike Chen",
+      "accountable": "Sarah Lee",
+      "consulted": "Operations",
+      "informed": "Leadership Team",
+      "status": "Not Started",
+      "dueDate": "2026-10-15",
+      "link": ""
+    },
+    {
+      "id": "3",
+      "task": "Complete crew training certification",
+      "category": "Operations",
+      "responsible": "Sarah Lee",
+      "accountable": "John Smith",
+      "consulted": "HR",
+      "informed": "Mike Chen",
+      "status": "Complete",
+      "dueDate": "2026-08-20",
+      "link": ""
+    },
+    {
+      "id": "4",
+      "task": "Negotiate fuel supply contract",
+      "category": "Commercial",
+      "responsible": "John Smith",
+      "accountable": "Jane Doe",
+      "consulted": "Finance",
+      "informed": "Operations",
+      "status": "Blocked",
+      "dueDate": "2026-09-25",
+      "link": ""
+    },
+    {
+      "id": "5",
+      "task": "Update safety management system",
+      "category": "Compliance",
+      "responsible": "Mike Chen",
+      "accountable": "Sarah Lee",
+      "consulted": "Legal Team, Operations",
+      "informed": "Leadership Team",
+      "status": "In Progress",
+      "dueDate": "2026-10-05",
+      "link": ""
+    }
+  ]
+}
