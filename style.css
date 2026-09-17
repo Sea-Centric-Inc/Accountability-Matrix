@@ -14,10 +14,10 @@
   --status-blocked: #d1332f;
   --status-not-started: #8a97a6;
 
-  --role-r: #1f6feb;
-  --role-a: #8457e0;
-  --role-c: #0f9b8e;
-  --role-i: #5b6b7a;
+  --stage-done: #2e8b57;
+  --stage-late: #c9982c;
+  --stage-overdue: #d1332f;
+  --stage-pending: #d9dee3;
 
   --person-highlight-bg: rgba(31, 111, 235, 0.08);
 }
@@ -39,10 +39,10 @@
     --status-blocked: #ff6b66;
     --status-not-started: #7c8a99;
 
-    --role-r: #4d9bff;
-    --role-a: #a98bff;
-    --role-c: #35c2b3;
-    --role-i: #9aa5b1;
+    --stage-done: #3ba86a;
+    --stage-late: #e0b64a;
+    --stage-overdue: #ff6b66;
+    --stage-pending: #2b333d;
 
     --person-highlight-bg: rgba(77, 155, 255, 0.14);
   }
@@ -185,18 +185,25 @@ body {
 .swatch-blocked { background: var(--status-blocked); }
 .swatch-not-started { background: var(--status-not-started); }
 
-.role-dot {
+.stage-dot {
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  margin-right: 4px;
+  margin-right: 3px;
+  border: 1px solid var(--border);
 }
 
-.role-dot-r { background: var(--role-r); }
-.role-dot-a { background: var(--role-a); }
-.role-dot-c { background: var(--role-c); }
-.role-dot-i { background: var(--role-i); }
+.stage-dot-done { background: var(--stage-done); border-color: var(--stage-done); }
+.stage-dot-late { background: var(--stage-late); border-color: var(--stage-late); }
+.stage-dot-overdue { background: var(--stage-overdue); border-color: var(--stage-overdue); }
+.stage-dot-pending { background: var(--stage-pending); }
+
+.stage-stepper {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
 
 .panel-toggle { margin-left: auto; }
 
@@ -328,10 +335,23 @@ table.matrix-table {
 .task-name { font-weight: 600; color: inherit; text-decoration: none; }
 a.task-name:hover { text-decoration: underline; color: var(--accent); }
 
-.role-cell-r { color: var(--role-r); }
-.role-cell-a { color: var(--role-a); font-weight: 600; }
-.role-cell-c { color: var(--role-c); }
-.role-cell-i { color: var(--role-i); }
+.task-meta {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.dept-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 0 4px 4px 0;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
 
 .status-pill {
   display: inline-block;

@@ -1,27 +1,25 @@
 (function () {
   "use strict";
 
-  const COMPLETE_WORDS = ["complete", "completed", "done"];
-  const BLOCKED_WORDS = ["blocked", "at risk", "delayed", "stuck"];
-  const IN_PROGRESS_WORDS = ["in progress", "active", "ongoing", "underway"];
-
-  const ROLE_FIELDS = [
-    { field: "responsible", label: "Responsible", slug: "r" },
-    { field: "accountable", label: "Accountable", slug: "a" },
-    { field: "consulted", label: "Consulted", slug: "c" },
-    { field: "informed", label: "Informed", slug: "i" }
-  ];
+  const STATUS_LABELS = {
+    complete: "Submitted",
+    "in-progress": "In Progress",
+    blocked: "At Risk",
+    "not-started": "Not Started"
+  };
+  const STATUS_ORDER = ["complete", "in-progress", "blocked", "not-started"];
 
   const state = {
     items: [],
     search: "",
     status: "",
-    category: "",
+    department: "",
     hideCompleted: false,
-    person: ""
+    deptFocus: ""
   };
 
   let els = {};
+  const today = new Date().toISOString().slice(0, 10);
 
   document.addEventListener("DOMContentLoaded", init);
 
@@ -32,13 +30,13 @@
       printBtn: document.getElementById("print-btn"),
       search: document.getElementById("search"),
       statusFilter: document.getElementById("status-filter"),
-      categoryFilter: document.getElementById("category-filter"),
+      departmentFilter: document.getElementById("department-filter"),
       hideCompleted: document.getElementById("hide-completed"),
       matrixRoot: document.getElementById("matrix-root"),
-      byPersonToggle: document.getElementById("by-person-toggle"),
-      byPersonBody: document.getElementById("by-person-body"),
-      personSelect: document.getElementById("person-select"),
-      byPersonResults: document.getElementById("by-person-results")
+      byDeptToggle: document.getElementById("by-dept-toggle"),
+      byDeptBody: document.getElementById("by-dept-body"),
+      deptSelect: document.getElementById("dept-select"),
+      byDeptResults: document.getElementById("by-dept-results")
     };
 
     readStateFromUrl();
@@ -54,8 +52,8 @@
       writeStateToUrl();
       render();
     });
-    els.categoryFilter.addEventListener("change", () => {
-      state.category = els.categoryFilter.value;
+    els.departmentFilter.addEventListener("change", () => {
+      state.department = els.departmentFilter.value;
       writeStateToUrl();
       render();
     });
@@ -64,13 +62,13 @@
       writeStateToUrl();
       render();
     });
-    els.personSelect.addEventListener("change", () => {
-      state.person = els.personSelect.value;
+    els.deptSelect.addEventListener("change", () => {
+      state.deptFocus = els.deptSelect.value;
       writeStateToUrl();
-      renderByPerson();
+      renderByDepartment();
       renderTable(getFilteredItems());
     });
-    els.byPersonToggle.addEventListener("click", () => togglePanel(els.byPersonBody, els.byPersonToggle));
+    els.byDeptToggle.addEventListener("click", () => togglePanel(els.byDeptBody, els.byDeptToggle));
 
     els.search.value = state.search;
     els.hideCompleted.checked = state.hideCompleted;
@@ -88,21 +86,20 @@
     const params = new URLSearchParams(window.location.search);
     state.search = params.get("q") || "";
     state.status = params.get("status") || "";
-    state.category = params.get("category") || "";
+    state.department = params.get("department") || "";
     state.hideCompleted = params.get("hideCompleted") === "1";
-    state.person = params.get("person") || "";
+    state.deptFocus = params.get("deptFocus") || "";
   }
 
   function writeStateToUrl() {
     const params = new URLSearchParams();
     if (state.search) params.set("q", state.search);
     if (state.status) params.set("status", state.status);
-    if (state.category) params.set("category", state.category);
+    if (state.department) params.set("department", state.department);
     if (state.hideCompleted) params.set("hideCompleted", "1");
-    if (state.person) params.set("person", state.person);
+    if (state.deptFocus) params.set("deptFocus", state.deptFocus);
     const query = params.toString();
-    const newUrl = window.location.pathname + (query ? "?" + query : "");
-    window.history.replaceState(null, "", newUrl);
+    window.history.replaceState(null, "", window.location.pathname + (query ? "?" + query : ""));
   }
 
   async function loadData() {
@@ -114,16 +111,15 @@
 
       els.sheetName.textContent = data.sheetName || "Accountability Matrix";
       if (data.generatedAt) {
-        const d = new Date(data.generatedAt);
-        els.generatedAt.textContent = "Updated " + d.toLocaleString();
+        els.generatedAt.textContent = "Updated " + new Date(data.generatedAt).toLocaleString();
       }
 
       populateFilterOptions();
-      populatePersonOptions();
-      if (state.person) {
-        els.byPersonBody.classList.remove("collapsed");
-        els.byPersonToggle.setAttribute("aria-expanded", "true");
-        els.byPersonToggle.textContent = "Hide";
+      populateDepartmentOptions();
+      if (state.deptFocus) {
+        els.byDeptBody.classList.remove("collapsed");
+        els.byDeptToggle.setAttribute("aria-expanded", "true");
+        els.byDeptToggle.textContent = "Hide";
       }
       render();
     } catch (err) {
@@ -132,92 +128,74 @@
     }
   }
 
-  function populateFilterOptions() {
-    const statuses = uniqueSorted(state.items.map((i) => i.status).filter(Boolean));
-    const categories = uniqueSorted(state.items.map((i) => i.category).filter(Boolean));
-
-    fillSelect(els.statusFilter, statuses, state.status, "All statuses");
-    fillSelect(els.categoryFilter, categories, state.category, "All categories");
-  }
-
-  function fillSelect(select, values, selected, allLabel) {
-    select.innerHTML = "";
-    const allOpt = document.createElement("option");
-    allOpt.value = "";
-    allOpt.textContent = allLabel;
-    select.appendChild(allOpt);
-    values.forEach((v) => {
-      const opt = document.createElement("option");
-      opt.value = v;
-      opt.textContent = v;
-      select.appendChild(opt);
-    });
-    select.value = selected;
-  }
-
-  function populatePersonOptions() {
-    const people = getAllPeople(state.items);
-    els.personSelect.innerHTML = '<option value="">Select a person&hellip;</option>';
-    people.forEach((p) => {
-      const opt = document.createElement("option");
-      opt.value = p;
-      opt.textContent = p;
-      els.personSelect.appendChild(opt);
-    });
-    els.personSelect.value = state.person;
-  }
-
-  function splitNames(raw) {
-    if (!raw) return [];
-    return raw
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-  }
-
-  function getAllPeople(items) {
+  function getAllDepartments(items) {
     const set = new Set();
     items.forEach((item) => {
-      ROLE_FIELDS.forEach(({ field }) => {
-        splitNames(item[field]).forEach((name) => set.add(name));
-      });
+      Object.keys(item.departments || {}).forEach((d) => set.add(d));
     });
-    return uniqueSorted(Array.from(set));
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
   }
 
-  function uniqueSorted(arr) {
-    return Array.from(new Set(arr)).sort((a, b) => a.localeCompare(b));
+  function populateFilterOptions() {
+    const statuses = STATUS_ORDER.filter((slug) => state.items.some((i) => itemStatus(i) === slug));
+    els.statusFilter.innerHTML = '<option value="">All statuses</option>';
+    statuses.forEach((slug) => {
+      const opt = document.createElement("option");
+      opt.value = slug;
+      opt.textContent = STATUS_LABELS[slug];
+      els.statusFilter.appendChild(opt);
+    });
+    els.statusFilter.value = state.status;
   }
 
-  function statusSlug(status) {
-    const s = (status || "").toLowerCase().trim();
-    if (!s) return "not-started";
-    if (COMPLETE_WORDS.some((w) => s.includes(w))) return "complete";
-    if (BLOCKED_WORDS.some((w) => s.includes(w))) return "blocked";
-    if (IN_PROGRESS_WORDS.some((w) => s.includes(w))) return "in-progress";
+  function populateDepartmentOptions() {
+    const depts = getAllDepartments(state.items);
+
+    els.departmentFilter.innerHTML = '<option value="">All departments</option>';
+    els.deptSelect.innerHTML = '<option value="">Select a department&hellip;</option>';
+    depts.forEach((d) => {
+      const opt1 = document.createElement("option");
+      opt1.value = d;
+      opt1.textContent = d;
+      els.departmentFilter.appendChild(opt1);
+
+      const opt2 = document.createElement("option");
+      opt2.value = d;
+      opt2.textContent = d;
+      els.deptSelect.appendChild(opt2);
+    });
+    els.departmentFilter.value = state.department;
+    els.deptSelect.value = state.deptFocus;
+  }
+
+  function stageStatus(stage) {
+    if (stage.actual) {
+      return stage.planned && stage.actual > stage.planned ? "late" : "done";
+    }
+    if (stage.planned && stage.planned < today) return "overdue";
+    return "pending";
+  }
+
+  function itemStatus(item) {
+    const stages = item.stages || [];
+    const submission = stages[stages.length - 1];
+    if (submission && submission.actual) return "complete";
+    if (stages.some((s) => stageStatus(s) === "overdue")) return "blocked";
+    if (stages.some((s) => s.actual)) return "in-progress";
     return "not-started";
-  }
-
-  function itemHasPerson(item, person) {
-    if (!person) return false;
-    return ROLE_FIELDS.some(({ field }) => splitNames(item[field]).includes(person));
   }
 
   function getFilteredItems() {
     const q = state.search.trim().toLowerCase();
     return state.items.filter((item) => {
-      if (state.status && item.status !== state.status) return false;
-      if (state.category && item.category !== state.category) return false;
-      if (state.hideCompleted && statusSlug(item.status) === "complete") return false;
+      if (state.status && itemStatus(item) !== state.status) return false;
+      if (state.department && !(item.departments && item.departments[state.department])) return false;
+      if (state.hideCompleted && itemStatus(item) === "complete") return false;
       if (q) {
-        const haystack = [
-          item.task,
-          item.category,
-          item.responsible,
-          item.accountable,
-          item.consulted,
-          item.informed
-        ]
+        const deptText = Object.keys(item.departments || {})
+          .map((d) => d + " " + item.departments[d])
+          .join(" ");
+        const haystack = [item.title, item.number, item.client, item.lead, item.submissionMethod, deptText]
           .join(" ")
           .toLowerCase();
         if (!haystack.includes(q)) return false;
@@ -229,74 +207,67 @@
   function render() {
     const filtered = getFilteredItems();
     renderTable(filtered);
-    renderByPerson();
+    renderByDepartment();
   }
 
-  function renderRoleCell(item, field, slug) {
-    const names = splitNames(item[field]);
-    if (!names.length) return "";
-    return names
-      .map(
-        (name) =>
-          '<span class="role-cell-' +
-          slug +
-          '"><span class="role-dot role-dot-' +
-          slug +
-          '"></span>' +
-          escapeHtml(name) +
-          "</span>"
-      )
-      .join(", ");
+  function renderDeptChips(item) {
+    const depts = Object.keys(item.departments || {});
+    if (!depts.length) return "—";
+    return depts
+      .map((d) => {
+        const val = item.departments[d];
+        const label = /^(x|yes|true|1|✓|checked)$/i.test(val) ? d : d + ": " + val;
+        return '<span class="dept-chip">' + escapeHtml(label) + "</span>";
+      })
+      .join(" ");
+  }
+
+  function renderStageStepper(item) {
+    const stages = item.stages || [];
+    if (!stages.length) return "—";
+    return (
+      '<span class="stage-stepper">' +
+      stages
+        .map((s) => {
+          const slug = stageStatus(s);
+          const title = s.label + ": planned " + (s.planned || "—") + ", actual " + (s.actual || "—");
+          return '<span class="stage-dot stage-dot-' + slug + '" title="' + escapeAttr(title) + '"></span>';
+        })
+        .join("") +
+      "</span>"
+    );
   }
 
   function renderTable(items) {
     if (!items.length) {
-      els.matrixRoot.innerHTML = '<p class="status-message">No matching tasks.</p>';
+      els.matrixRoot.innerHTML = '<p class="status-message">No matching proposals.</p>';
       return;
     }
 
     const rows = items
       .map((item) => {
-        const slug = statusSlug(item.status);
-        const highlighted = state.person && itemHasPerson(item, state.person);
-        const taskCell = item.link
+        const slug = itemStatus(item);
+        const highlighted = state.deptFocus && item.departments && item.departments[state.deptFocus];
+        const titleCell = item.link
           ? '<a class="task-name" href="' +
             escapeAttr(item.link) +
             '" target="_blank" rel="noopener noreferrer">' +
-            escapeHtml(item.task) +
+            escapeHtml(item.title) +
             "</a>"
-          : '<span class="task-name">' + escapeHtml(item.task) + "</span>";
+          : '<span class="task-name">' + escapeHtml(item.title) + "</span>";
+        const numberLine = item.number ? '<div class="task-meta">' + escapeHtml(item.number) + "</div>" : "";
 
         return (
           '<tr class="' +
           (highlighted ? "person-highlight" : "") +
           '">' +
-          "<td>" +
-          taskCell +
-          "</td>" +
-          "<td>" +
-          escapeHtml(item.category || "—") +
-          "</td>" +
-          "<td>" +
-          (renderRoleCell(item, "responsible", "r") || "—") +
-          "</td>" +
-          "<td>" +
-          (renderRoleCell(item, "accountable", "a") || "—") +
-          "</td>" +
-          "<td>" +
-          (renderRoleCell(item, "consulted", "c") || "—") +
-          "</td>" +
-          "<td>" +
-          (renderRoleCell(item, "informed", "i") || "—") +
-          "</td>" +
-          "<td><span class=\"status-pill status-" +
-          slug +
-          '">' +
-          escapeHtml(item.status || "Not Started") +
-          "</span></td>" +
-          "<td>" +
-          escapeHtml(item.dueDate || "—") +
-          "</td>" +
+          "<td>" + titleCell + numberLine + "</td>" +
+          "<td>" + escapeHtml(item.client || "—") + "</td>" +
+          "<td>" + escapeHtml(item.lead || "—") + "</td>" +
+          "<td>" + renderDeptChips(item) + "</td>" +
+          "<td>" + escapeHtml(item.submissionDeadline || "—") + "</td>" +
+          "<td>" + renderStageStepper(item) + "</td>" +
+          '<td><span class="status-pill status-' + slug + '">' + STATUS_LABELS[slug] + "</span></td>" +
           "</tr>"
         );
       })
@@ -304,74 +275,63 @@
 
     els.matrixRoot.innerHTML =
       '<div class="matrix-table-wrap"><table class="matrix-table"><thead><tr>' +
-      "<th>Task / Deliverable</th><th>Category</th><th>Responsible</th><th>Accountable</th>" +
-      "<th>Consulted</th><th>Informed</th><th>Status</th><th>Due Date</th>" +
+      "<th>RFP</th><th>Client</th><th>Lead</th><th>Departments</th><th>Deadline</th><th>Pipeline</th><th>Status</th>" +
       "</tr></thead><tbody>" +
       rows +
       "</tbody></table></div>";
   }
 
-  function renderByPerson() {
-    const person = state.person;
-    if (!person) {
-      els.byPersonResults.innerHTML =
-        '<p class="status-message">Pick a person to see their responsibilities across the matrix.</p>';
+  function renderByDepartment() {
+    const dept = state.deptFocus;
+    if (!dept) {
+      els.byDeptResults.innerHTML =
+        '<p class="status-message">Pick a department to see the proposals it\'s accountable for.</p>';
       return;
     }
 
-    const counts = { r: 0, a: 0, c: 0, i: 0 };
-    const ownedItems = [];
+    const items = state.items.filter((item) => item.departments && item.departments[dept]);
 
-    state.items.forEach((item) => {
-      ROLE_FIELDS.forEach(({ field, slug }) => {
-        if (splitNames(item[field]).includes(person)) {
-          counts[slug]++;
-          if (slug === "r" || slug === "a") {
-            if (!ownedItems.includes(item)) ownedItems.push(item);
-          }
-        }
-      });
-    });
+    const counts = { complete: 0, "in-progress": 0, blocked: 0, "not-started": 0 };
+    items.forEach((item) => counts[itemStatus(item)]++);
 
     const pillsHtml =
       '<div class="role-count-row">' +
-      ROLE_FIELDS.map(
-        ({ label, slug }) =>
-          '<span class="role-count-pill"><span class="role-dot role-dot-' +
+      STATUS_ORDER.map(
+        (slug) =>
+          '<span class="role-count-pill"><span class="swatch swatch-' +
           slug +
           '"></span>' +
-          label +
+          STATUS_LABELS[slug] +
           ": <strong>" +
           counts[slug] +
           "</strong></span>"
       ).join("") +
       "</div>";
 
-    if (!ownedItems.length) {
-      els.byPersonResults.innerHTML =
-        pillsHtml + '<p class="status-message">No tasks where ' + escapeHtml(person) + " is Responsible or Accountable.</p>";
+    if (!items.length) {
+      els.byDeptResults.innerHTML = pillsHtml + '<p class="status-message">No proposals involve ' + escapeHtml(dept) + " yet.</p>";
       return;
     }
 
     const listHtml =
       '<ul class="gap-list">' +
-      ownedItems
+      items
         .map((item) => {
-          const slug = statusSlug(item.status);
+          const slug = itemStatus(item);
           return (
             '<li class="gap-item"><span class="gap-dates">' +
-            escapeHtml(item.task) +
+            escapeHtml(item.title) +
             '</span><span class="status-pill status-' +
             slug +
             '">' +
-            escapeHtml(item.status || "Not Started") +
+            STATUS_LABELS[slug] +
             "</span></li>"
           );
         })
         .join("") +
       "</ul>";
 
-    els.byPersonResults.innerHTML = pillsHtml + listHtml;
+    els.byDeptResults.innerHTML = pillsHtml + listHtml;
   }
 
   function escapeHtml(s) {

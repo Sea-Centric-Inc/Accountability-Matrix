@@ -5,62 +5,108 @@
   "items": [
     {
       "id": "1",
-      "task": "Finalize vessel charter agreement",
-      "category": "Commercial",
-      "responsible": "Jane Doe",
-      "accountable": "John Smith",
-      "consulted": "Legal Team",
-      "informed": "Finance",
-      "status": "In Progress",
-      "dueDate": "2026-09-30",
+      "title": "Offshore Supply Vessel Charter",
+      "number": "RFP-2026-014",
+      "client": "Atlantic Energy Partners",
+      "lead": "Jane Doe",
+      "submissionMethod": "Client Portal",
+      "submissionDeadline": "2026-10-10",
+      "referenceDocs": "",
+      "departments": {
+        "Operations": "Mike Chen",
+        "HSEQ": "Sarah Lee",
+        "Business Development": "Jane Doe",
+        "Finance": "Tom Reyes"
+      },
+      "stages": [
+        { "label": "Kick-Off Meeting", "planned": "2026-08-20", "actual": "2026-08-20" },
+        { "label": "Compliance Review", "planned": "2026-08-27", "actual": "2026-08-28" },
+        { "label": "Technical Review", "planned": "2026-09-05", "actual": "2026-09-05" },
+        { "label": "Commercial Review", "planned": "2026-09-20", "actual": "" },
+        { "label": "Draft Review", "planned": "2026-09-27", "actual": "" },
+        { "label": "Final Review", "planned": "2026-10-03", "actual": "" },
+        { "label": "Executive Approval", "planned": "2026-10-07", "actual": "" },
+        { "label": "Submission", "planned": "2026-10-10", "actual": "" }
+      ],
       "link": ""
     },
     {
       "id": "2",
-      "task": "Submit environmental compliance report",
-      "category": "Compliance",
-      "responsible": "Mike Chen",
-      "accountable": "Sarah Lee",
-      "consulted": "Operations",
-      "informed": "Leadership Team",
-      "status": "Not Started",
-      "dueDate": "2026-10-15",
+      "title": "Lewisporte Terminal Expansion Proposal",
+      "number": "RFP-2026-015",
+      "client": "Province of Newfoundland and Labrador",
+      "lead": "John Smith",
+      "submissionMethod": "Email",
+      "submissionDeadline": "2026-09-22",
+      "referenceDocs": "",
+      "departments": {
+        "Operations": "Mike Chen",
+        "IT": "Priya Nair",
+        "Finance": "Tom Reyes",
+        "Other": "Legal Counsel"
+      },
+      "stages": [
+        { "label": "Kick-Off Meeting", "planned": "2026-08-10", "actual": "2026-08-10" },
+        { "label": "Compliance Review", "planned": "2026-08-17", "actual": "2026-08-17" },
+        { "label": "Technical Review", "planned": "2026-08-24", "actual": "2026-08-26" },
+        { "label": "Commercial Review", "planned": "2026-08-31", "actual": "2026-09-02" },
+        { "label": "Draft Review", "planned": "2026-09-07", "actual": "2026-09-07" },
+        { "label": "Final Review", "planned": "2026-09-12", "actual": "" },
+        { "label": "Executive Approval", "planned": "2026-09-16", "actual": "" },
+        { "label": "Submission", "planned": "2026-09-22", "actual": "" }
+      ],
       "link": ""
     },
     {
       "id": "3",
-      "task": "Complete crew training certification",
-      "category": "Operations",
-      "responsible": "Sarah Lee",
-      "accountable": "John Smith",
-      "consulted": "HR",
-      "informed": "Mike Chen",
-      "status": "Complete",
-      "dueDate": "2026-08-20",
+      "title": "ECMI Crew Transfer Services Renewal",
+      "number": "RFP-2026-011",
+      "client": "ECMI Consortium",
+      "lead": "Sarah Lee",
+      "submissionMethod": "Client Portal",
+      "submissionDeadline": "2026-08-25",
+      "referenceDocs": "",
+      "departments": {
+        "Human Resources": "Priya Nair",
+        "Operations": "Mike Chen",
+        "HSEQ": "Sarah Lee",
+        "Finance": "Tom Reyes"
+      },
+      "stages": [
+        { "label": "Kick-Off Meeting", "planned": "2026-07-14", "actual": "2026-07-14" },
+        { "label": "Compliance Review", "planned": "2026-07-21", "actual": "2026-07-21" },
+        { "label": "Technical Review", "planned": "2026-07-28", "actual": "2026-07-28" },
+        { "label": "Commercial Review", "planned": "2026-08-04", "actual": "2026-08-04" },
+        { "label": "Draft Review", "planned": "2026-08-11", "actual": "2026-08-11" },
+        { "label": "Final Review", "planned": "2026-08-15", "actual": "2026-08-15" },
+        { "label": "Executive Approval", "planned": "2026-08-19", "actual": "2026-08-19" },
+        { "label": "Submission", "planned": "2026-08-25", "actual": "2026-08-25" }
+      ],
       "link": ""
     },
     {
       "id": "4",
-      "task": "Negotiate fuel supply contract",
-      "category": "Commercial",
-      "responsible": "John Smith",
-      "accountable": "Jane Doe",
-      "consulted": "Finance",
-      "informed": "Operations",
-      "status": "Blocked",
-      "dueDate": "2026-09-25",
-      "link": ""
-    },
-    {
-      "id": "5",
-      "task": "Update safety management system",
-      "category": "Compliance",
-      "responsible": "Mike Chen",
-      "accountable": "Sarah Lee",
-      "consulted": "Legal Team, Operations",
-      "informed": "Leadership Team",
-      "status": "In Progress",
-      "dueDate": "2026-10-05",
+      "title": "Vessel Maintenance Services RFQ",
+      "number": "RFP-2026-017",
+      "client": "Northern Shipping Co.",
+      "lead": "Mike Chen",
+      "submissionMethod": "Mail",
+      "submissionDeadline": "2026-09-15",
+      "referenceDocs": "",
+      "departments": {
+        "Operations": "Mike Chen",
+        "IT": "Priya Nair"
+      },
+      "stages": [
+        { "label": "Kick-Off Meeting", "planned": "2026-08-15", "actual": "2026-08-15" },
+        { "label": "Compliance Review", "planned": "2026-08-22", "actual": "" },
+        { "label": "Technical Review", "planned": "2026-08-29", "actual": "" },
+        { "label": "Commercial Review", "planned": "2026-09-01", "actual": "" },
+        { "label": "Draft Review", "planned": "2026-09-05", "actual": "" },
+        { "label": "Final Review", "planned": "2026-09-09", "actual": "" },
+        { "label": "Executive Approval", "planned": "2026-09-12", "actual": "" },
+        { "label": "Submission", "planned": "2026-09-15", "actual": "" }
+      ],
       "link": ""
     }
   ]

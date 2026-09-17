@@ -1,11 +1,30 @@
 {
-  "_comment": "Map each logical field to the EXACT column title (case-sensitive) as it appears in your Smartsheet. A field can be a single title, an array of titles (joined together), or \"\" if you don't have that column.",
-  "task": "Task / Deliverable",
-  "category": "",
-  "responsible": "Responsible",
-  "accountable": "Accountable",
-  "consulted": "Consulted",
-  "informed": "Informed",
-  "status": "Status",
-  "dueDate": "Due Date"
+  "_comment": "Maps this app's fields to the EXACT column titles (case-sensitive) in the 'Accountability Matrix' Smartsheet. Edit the values on the right if column titles change in the sheet.",
+  "title": "RFP Title",
+  "number": "RFP Number",
+  "client": "Client / Organization",
+  "lead": "Proposal Manager / Lead",
+  "submissionMethod": "Submission Method",
+  "submissionDeadline": "Submission Deadline",
+  "referenceDocs": "Reference Documentation",
+  "departments": {
+    "_comment": "Each entry is Department label -> its column title. A row counts as that department being 'involved' whenever the cell has any value.",
+    "Human Resources": "Human Resources",
+    "Operations": "Operations",
+    "HSEQ": "HSEQ",
+    "Business Development": "Business Development",
+    "IT": "IT",
+    "Finance": "Finance",
+    "Other": "Other"
+  },
+  "stages": [
+    { "label": "Kick-Off Meeting", "planned": "Kick-Off Meeting Planned Date", "actual": "Kick-Off Meeting Actual Date" },
+    { "label": "Compliance Review", "planned": "Compliance Review Planned Date", "actual": "Compliance Review Actual Date" },
+    { "label": "Technical Review", "planned": "Technical Review Planned Date", "actual": "Technical Review Actual Date" },
+    { "label": "Commercial Review", "planned": "Commercial Review Planned Date", "actual": "Commercial Review Actual Date" },
+    { "label": "Draft Review", "planned": "Draft Review Planned Date", "actual": "Draft Review Actual Date" },
+    { "label": "Final Review", "planned": "Final Review Planned Date", "actual": "Final Review Actual Date" },
+    { "label": "Executive Approval", "planned": "Executive Approval Planned Date", "actual": "Executive Approval Actual Date" },
+    { "label": "Submission", "planned": "Submission Planned Date", "actual": "Submission Actual Date" }
+  ]
 }

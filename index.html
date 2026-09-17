@@ -10,7 +10,7 @@
 <header class="app-header">
   <div class="app-header-title">
     <h1>Accountability Matrix</h1>
-    <p id="sheet-name" class="app-header-subtitle">Loading matrix&hellip;</p>
+    <p id="sheet-name" class="app-header-subtitle">Loading proposals&hellip;</p>
   </div>
   <div class="app-header-meta">
     <span id="generated-at"></span>
@@ -20,47 +20,47 @@
 
 <div class="toolbar no-print">
   <div class="toolbar-group">
-    <input id="search" type="search" placeholder="Search tasks or people&hellip;" />
+    <input id="search" type="search" placeholder="Search RFPs, clients, leads&hellip;" />
     <select id="status-filter">
       <option value="">All statuses</option>
     </select>
-    <select id="category-filter">
-      <option value="">All categories</option>
+    <select id="department-filter">
+      <option value="">All departments</option>
     </select>
     <label class="checkbox-label">
       <input id="hide-completed" type="checkbox" />
-      Hide completed
+      Hide submitted
     </label>
   </div>
 </div>
 
 <div class="legend">
-  <span class="legend-item"><span class="swatch swatch-complete"></span>Complete</span>
+  <span class="legend-item"><span class="swatch swatch-complete"></span>Submitted</span>
   <span class="legend-item"><span class="swatch swatch-in-progress"></span>In Progress</span>
-  <span class="legend-item"><span class="swatch swatch-blocked"></span>Blocked</span>
+  <span class="legend-item"><span class="swatch swatch-blocked"></span>At Risk (overdue stage)</span>
   <span class="legend-item"><span class="swatch swatch-not-started"></span>Not Started</span>
-  <span class="legend-item"><span class="role-dot role-dot-r"></span>Responsible</span>
-  <span class="legend-item"><span class="role-dot role-dot-a"></span>Accountable</span>
-  <span class="legend-item"><span class="role-dot role-dot-c"></span>Consulted</span>
-  <span class="legend-item"><span class="role-dot role-dot-i"></span>Informed</span>
+  <span class="legend-item"><span class="stage-dot stage-dot-done"></span>Stage done</span>
+  <span class="legend-item"><span class="stage-dot stage-dot-late"></span>Stage done late</span>
+  <span class="legend-item"><span class="stage-dot stage-dot-overdue"></span>Stage overdue</span>
+  <span class="legend-item"><span class="stage-dot stage-dot-pending"></span>Stage pending</span>
 </div>
 
 <section class="availability-panel no-print">
   <div class="availability-header">
-    <h2>By Person</h2>
-    <button id="by-person-toggle" type="button" class="text-button panel-toggle" aria-expanded="false">Show</button>
+    <h2>By Department</h2>
+    <button id="by-dept-toggle" type="button" class="text-button panel-toggle" aria-expanded="false">Show</button>
   </div>
-  <div id="by-person-body" class="availability-body collapsed">
+  <div id="by-dept-body" class="availability-body collapsed">
     <div class="availability-controls">
       <label class="availability-select-label">
-        Person
-        <select id="person-select">
-          <option value="">Select a person&hellip;</option>
+        Department
+        <select id="dept-select">
+          <option value="">Select a department&hellip;</option>
         </select>
       </label>
     </div>
-    <div id="by-person-results" class="availability-results">
-      <p class="status-message">Pick a person to see their responsibilities across the matrix.</p>
+    <div id="by-dept-results" class="availability-results">
+      <p class="status-message">Pick a department to see the proposals it's accountable for.</p>
     </div>
   </div>
 </section>
