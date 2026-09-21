@@ -1,6 +1,69 @@
 {
-  "generatedAt": "2026-09-21T16:37:04.384Z",
+  "generatedAt": "2026-09-21T17:03:37.493Z",
   "source": "smartsheet",
   "sheetName": "Accountability Matrix",
-  "items": []
+  "items": [
+    {
+      "id": "7856356438048644",
+      "title": "t",
+      "number": "t",
+      "client": "t",
+      "lead": "",
+      "submissionMethod": "t",
+      "submissionDeadline": "",
+      "referenceDocs": "t",
+      "departments": {
+        "Human Resources": "t",
+        "Operations": "t",
+        "HSEQ": "t",
+        "Business Development": "t",
+        "IT": "t",
+        "Finance": "t",
+        "Other": "t"
+      },
+      "stages": [
+        {
+          "label": "Kick-Off Meeting",
+          "planned": "",
+          "actual": ""
+        },
+        {
+          "label": "Compliance Review",
+          "planned": "",
+          "actual": ""
+        },
+        {
+          "label": "Technical Review",
+          "planned": "",
+          "actual": ""
+        },
+        {
+          "label": "Commercial Review",
+          "planned": "",
+          "actual": ""
+        },
+        {
+          "label": "Draft Review",
+          "planned": "",
+          "actual": ""
+        },
+        {
+          "label": "Final Review",
+          "planned": "",
+          "actual": ""
+        },
+        {
+          "label": "Executive Approval",
+          "planned": "",
+          "actual": ""
+        },
+        {
+          "label": "Submission",
+          "planned": "",
+          "actual": ""
+        }
+      ],
+      "link": "https://app.smartsheet.com/sheets/fXCh32j56XWg27gGGvPPp59PJjvc7cFrqGpmfWJ1?rowId=7856356438048644"
+    }
+  ]
 }
