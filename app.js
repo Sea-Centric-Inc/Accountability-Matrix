@@ -15,7 +15,8 @@
     status: "",
     department: "",
     hideCompleted: false,
-    deptFocus: ""
+    deptFocus: "",
+    expanded: new Set()
   };
 
   let els = {};
@@ -69,6 +70,18 @@
       renderTable(getFilteredItems());
     });
     els.byDeptToggle.addEventListener("click", () => togglePanel(els.byDeptBody, els.byDeptToggle));
+
+    els.matrixRoot.addEventListener("click", (e) => {
+      const btn = e.target.closest(".detail-toggle");
+      if (!btn) return;
+      const id = btn.getAttribute("data-id");
+      if (state.expanded.has(id)) {
+        state.expanded.delete(id);
+      } else {
+        state.expanded.add(id);
+      }
+      renderTable(getFilteredItems());
+    });
 
     els.search.value = state.search;
     els.hideCompleted.checked = state.hideCompleted;
@@ -238,6 +251,43 @@
     );
   }
 
+  function looksLikeUrl(s) {
+    return /^https?:\/\//i.test(s || "");
+  }
+
+  function renderDetailRow(item) {
+    const stageRows = (item.stages || [])
+      .map((s) => {
+        const slug = stageStatus(s);
+        const label = { done: "Done", late: "Done (late)", overdue: "Overdue", pending: "Pending" }[slug];
+        return (
+          "<tr><td>" + escapeHtml(s.label) + "</td><td>" + escapeHtml(s.planned || "—") + "</td><td>" +
+          escapeHtml(s.actual || "—") + '</td><td><span class="status-pill status-' +
+          (slug === "done" ? "complete" : slug === "late" ? "in-progress" : slug === "overdue" ? "blocked" : "not-started") +
+          '">' + label + "</span></td></tr>"
+        );
+      })
+      .join("");
+
+    const refDocs = item.referenceDocs
+      ? looksLikeUrl(item.referenceDocs)
+        ? '<a href="' + escapeAttr(item.referenceDocs) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(item.referenceDocs) + "</a>"
+        : escapeHtml(item.referenceDocs)
+      : "—";
+
+    return (
+      '<tr class="detail-row"><td colspan="8">' +
+      '<div class="detail-grid">' +
+      "<div><span class=\"toolbar-label\">Submission Method</span><div>" + escapeHtml(item.submissionMethod || "—") + "</div></div>" +
+      "<div><span class=\"toolbar-label\">Reference Documentation</span><div>" + refDocs + "</div></div>" +
+      "</div>" +
+      '<table class="detail-stage-table"><thead><tr><th>Stage</th><th>Planned</th><th>Actual</th><th>Status</th></tr></thead><tbody>' +
+      stageRows +
+      "</tbody></table>" +
+      "</td></tr>"
+    );
+  }
+
   function renderTable(items) {
     if (!items.length) {
       els.matrixRoot.innerHTML = '<p class="status-message">No matching proposals.</p>';
@@ -248,6 +298,7 @@
       .map((item) => {
         const slug = itemStatus(item);
         const highlighted = state.deptFocus && item.departments && item.departments[state.deptFocus];
+        const isExpanded = state.expanded.has(item.id);
         const titleCell = item.link
           ? '<a class="task-name" href="' +
             escapeAttr(item.link) +
@@ -257,7 +308,7 @@
           : '<span class="task-name">' + escapeHtml(item.title) + "</span>";
         const numberLine = item.number ? '<div class="task-meta">' + escapeHtml(item.number) + "</div>" : "";
 
-        return (
+        const mainRow =
           '<tr class="' +
           (highlighted ? "person-highlight" : "") +
           '">' +
@@ -268,14 +319,18 @@
           "<td>" + escapeHtml(item.submissionDeadline || "—") + "</td>" +
           "<td>" + renderStageStepper(item) + "</td>" +
           '<td><span class="status-pill status-' + slug + '">' + STATUS_LABELS[slug] + "</span></td>" +
-          "</tr>"
-        );
+          '<td><button type="button" class="text-button detail-toggle" data-id="' +
+          escapeAttr(item.id) +
+          '">' + (isExpanded ? "Hide" : "Details") + "</button></td>" +
+          "</tr>";
+
+        return mainRow + (isExpanded ? renderDetailRow(item) : "");
       })
       .join("");
 
     els.matrixRoot.innerHTML =
       '<div class="matrix-table-wrap"><table class="matrix-table"><thead><tr>' +
-      "<th>RFP</th><th>Client</th><th>Lead</th><th>Departments</th><th>Deadline</th><th>Pipeline</th><th>Status</th>" +
+      "<th>RFP</th><th>Client</th><th>Lead</th><th>Departments</th><th>Deadline</th><th>Pipeline</th><th>Status</th><th>Details</th>" +
       "</tr></thead><tbody>" +
       rows +
       "</tbody></table></div>";
