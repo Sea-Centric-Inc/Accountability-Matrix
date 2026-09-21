@@ -53,14 +53,10 @@ proposals are added there, running the sync will overwrite the sample data.
   the full 8-stage table with Planned/Actual dates and a status label per
   stage. Nothing in the sheet is hidden - everything either shows in the
   table or in this expanded panel.
-- **New RFP Entry** (not wired up yet) - there's no published Smartsheet
-  form for this sheet yet. Once one exists (sheet → **Forms** → **Create
-  Form**, mapped to the same columns as `config/smartsheet-map.json`), add a
-  header button back in `index.html`:
-  ```html
-  <a href="<form URL>" target="_blank" rel="noopener noreferrer" class="text-button no-print">New RFP Entry</a>
-  ```
-  right after the `#generated-at` span.
+- **New RFP Entry** - header button opens the Smartsheet intake form
+  (`019f3c59e4c5713a9f9bc7bef1b75e0e`) in a new tab, so anyone can add a
+  proposal straight into the same sheet this site reads from. Edit the
+  `href` on that link in `index.html` if the form URL ever changes.
 - **Overall status** (derived, see `itemStatus()` in `app.js`):
   - **Submitted** - the final "Submission" stage has an actual date.
   - **At Risk** - any stage is overdue.
