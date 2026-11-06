@@ -6,19 +6,19 @@
  * data/matrix-data.json in the shape the frontend expects. Run via
  * `npm run fetch-data`.
  *
- * Required environment variables:
- *   SMARTSHEET_ACCESS_TOKEN - Smartsheet API access token
- *   SMARTSHEET_SHEET_ID     - Numeric ID of the sheet to pull
+ * Environment variables:
+ *   SMARTSHEET_ACCESS_TOKEN - Smartsheet API access token (required)
+ *   SMARTSHEET_SHEET_ID     - Fallback sheet ID, used only if
+ *                             config/smartsheet-map.json has no "sheetId"
  *
- * Column mapping lives in config/smartsheet-map.json so it can be edited
- * without touching this script.
+ * Sheet ID and column mapping live in config/smartsheet-map.json so they can
+ * be edited without touching this script.
  */
 
 const fs = require("fs");
 const path = require("path");
 
 const TOKEN = process.env.SMARTSHEET_ACCESS_TOKEN;
-const SHEET_ID = process.env.SMARTSHEET_SHEET_ID;
 const MAP_PATH = path.join(__dirname, "..", "config", "smartsheet-map.json");
 const OUTPUT_PATH = path.join(__dirname, "..", "data", "matrix-data.json");
 
@@ -55,10 +55,11 @@ function findColumnId(columns, title) {
 }
 
 async function main() {
-  if (!TOKEN) fail("SMARTSHEET_ACCESS_TOKEN environment variable is not set.");
-  if (!SHEET_ID) fail("SMARTSHEET_SHEET_ID environment variable is not set.");
-
   const map = JSON.parse(fs.readFileSync(MAP_PATH, "utf8"));
+  const SHEET_ID = map.sheetId || process.env.SMARTSHEET_SHEET_ID;
+
+  if (!TOKEN) fail("SMARTSHEET_ACCESS_TOKEN environment variable is not set.");
+  if (!SHEET_ID) fail("No sheet ID: set \"sheetId\" in config/smartsheet-map.json or the SMARTSHEET_SHEET_ID environment variable.");
 
   const url = "https://api.smartsheet.com/2.0/sheets/" + encodeURIComponent(SHEET_ID) + "?include=rowPermalink";
   const res = await fetch(url, {
@@ -97,16 +98,48 @@ async function main() {
     actualId: findColumnId(columns, stage.actual)
   }));
 
+  const delivMap = map.deliverables || {};
+  const delivFields = ["itemNo", "rfpTitle", "description", "link", "owner", "dueDate", "status", "complete"];
+  const delivColIds = {};
+  delivFields.forEach((field) => {
+    if (delivMap[field]) delivColIds[field] = findColumnId(columns, delivMap[field]);
+  });
+
   const items = [];
+  const deliverableRows = [];
   (sheet.rows || []).forEach((row) => {
     const cellByColumnId = {};
     (row.cells || []).forEach((cell) => {
       cellByColumnId[cell.columnId] = cell;
     });
     const get = (colId) => (colId ? cellValue(cellByColumnId[colId]) : "");
+    const hyperlink = (colId) => {
+      const cell = colId && cellByColumnId[colId];
+      return (cell && cell.hyperlink && cell.hyperlink.url) || "";
+    };
 
     const title = get(simpleColIds.title);
-    if (!title) return; // skip blank / section-header rows
+
+    // A row can carry a deliverable on its own or alongside a proposal.
+    const hasDeliverable = ["itemNo", "description", "owner", "dueDate", "link"].some((f) => get(delivColIds[f]));
+    if (hasDeliverable) {
+      const complete = get(delivColIds.complete);
+      deliverableRows.push({
+        id: String(row.id),
+        itemNo: String(get(delivColIds.itemNo) || ""),
+        rfpTitle: String(get(delivColIds.rfpTitle) || title || ""),
+        description: String(get(delivColIds.description) || ""),
+        linkText: String(get(delivColIds.link) || ""),
+        linkUrl: hyperlink(delivColIds.link),
+        owner: String(get(delivColIds.owner) || ""),
+        dueDate: toDateString(get(delivColIds.dueDate)),
+        status: String(get(delivColIds.status) || ""),
+        complete: complete === true || /^(true|yes|1)$/i.test(String(complete)),
+        link: row.permalink || ""
+      });
+    }
+
+    if (!title) return; // rows without an RFP Title are not proposals
 
     const departments = {};
     Object.keys(deptColIds).forEach((label) => {
@@ -129,21 +162,37 @@ async function main() {
       submissionMethod: String(get(simpleColIds.submissionMethod) || ""),
       submissionDeadline: toDateString(get(simpleColIds.submissionDeadline)),
       referenceDocs: String(get(simpleColIds.referenceDocs) || ""),
+      referenceDocsUrl: hyperlink(simpleColIds.referenceDocs),
       departments,
       stages,
+      deliverables: [],
       link: row.permalink || ""
     });
+  });
+
+  // Attach each deliverable to the proposal whose title it names.
+  const byTitle = new Map(items.map((item) => [item.title.trim().toLowerCase(), item]));
+  const unassignedDeliverables = [];
+  deliverableRows.forEach((d) => {
+    const target = byTitle.get(d.rfpTitle.trim().toLowerCase());
+    if (target) target.deliverables.push(d);
+    else unassignedDeliverables.push(d);
   });
 
   const output = {
     generatedAt: new Date().toISOString(),
     source: "smartsheet",
     sheetName: sheet.name || "Accountability Matrix",
-    items
+    sheetLink: sheet.permalink || "",
+    items,
+    unassignedDeliverables
   };
 
   fs.writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2) + "\n");
-  console.log("Wrote " + items.length + " item(s) from \"" + output.sheetName + "\" to " + path.relative(process.cwd(), OUTPUT_PATH));
+  console.log(
+    "Wrote " + items.length + " item(s) and " + deliverableRows.length + " deliverable(s) from \"" +
+      output.sheetName + "\" to " + path.relative(process.cwd(), OUTPUT_PATH)
+  );
 }
 
 main().catch((err) => fail(err.stack || err.message || String(err)));

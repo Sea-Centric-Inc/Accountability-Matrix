@@ -1,5 +1,6 @@
 {
   "_comment": "Maps this app's fields to the EXACT column titles (case-sensitive) in the 'Accountability Matrix' Smartsheet. Edit the values on the right if column titles change in the sheet.",
+  "sheetId": "5706430201155460",
   "title": "RFP Title",
   "number": "RFP Number",
   "client": "Client / Organization",
@@ -20,11 +21,20 @@
   "stages": [
     { "label": "Kick-Off Meeting", "planned": "Kick-Off Meeting Planned Date", "actual": "Kick-Off Meeting Actual Date" },
     { "label": "Compliance Review", "planned": "Compliance Review Planned Date", "actual": "Compliance Review Actual Date" },
-    { "label": "Technical Review", "planned": "Technical Review Planned Date", "actual": "Technical Review Actual Date" },
-    { "label": "Commercial Review", "planned": "Commercial Review Planned Date", "actual": "Commercial Review Actual Date" },
     { "label": "Draft Review", "planned": "Draft Review Planned Date", "actual": "Draft Review Actual Date" },
     { "label": "Final Review", "planned": "Final Review Planned Date", "actual": "Final Review Actual Date" },
     { "label": "Executive Approval", "planned": "Executive Approval Planned Date", "actual": "Executive Approval Actual Date" },
     { "label": "Submission", "planned": "Submission Planned Date", "actual": "Submission Actual Date" }
-  ]
+  ],
+  "deliverables": {
+    "_comment": "Deliverable rows are any row with a value in itemNo, description, owner, dueDate or link. They attach to the proposal whose RFP Title matches rfpTitle (falling back to the row's own RFP Title).",
+    "itemNo": "Item No.",
+    "rfpTitle": "RFP Title Confirmation",
+    "description": "Description",
+    "link": "Document / Ref Link",
+    "owner": "Owner",
+    "dueDate": "Due Date",
+    "status": "Status",
+    "complete": "Complete?"
+  }
 }

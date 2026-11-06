@@ -11,6 +11,7 @@
 
   const state = {
     items: [],
+    unassigned: [],
     search: "",
     status: "",
     department: "",
@@ -34,6 +35,8 @@
       departmentFilter: document.getElementById("department-filter"),
       hideCompleted: document.getElementById("hide-completed"),
       matrixRoot: document.getElementById("matrix-root"),
+      unassignedRoot: document.getElementById("unassigned-root"),
+      sheetLink: document.getElementById("sheet-link"),
       byDeptToggle: document.getElementById("by-dept-toggle"),
       byDeptBody: document.getElementById("by-dept-body"),
       deptSelect: document.getElementById("dept-select"),
@@ -121,8 +124,16 @@
       if (!res.ok) throw new Error("HTTP " + res.status);
       const data = await res.json();
       state.items = Array.isArray(data.items) ? data.items : [];
+      state.items.forEach((item) => {
+        if (!Array.isArray(item.deliverables)) item.deliverables = [];
+      });
+      state.unassigned = Array.isArray(data.unassignedDeliverables) ? data.unassignedDeliverables : [];
 
       els.sheetName.textContent = data.sheetName || "Accountability Matrix";
+      if (data.sheetLink && els.sheetLink) {
+        els.sheetLink.href = data.sheetLink;
+        els.sheetLink.hidden = false;
+      }
       if (data.generatedAt) {
         els.generatedAt.textContent = "Updated " + new Date(data.generatedAt).toLocaleString();
       }
@@ -189,11 +200,25 @@
     return "pending";
   }
 
+  // "done" = ticked Complete? or Status contains Closed; "overdue" = past due and not done.
+  function deliverableStatus(d) {
+    if (d.complete || /closed/i.test(d.status || "")) return "done";
+    if (d.dueDate && d.dueDate < today) return "overdue";
+    return "open";
+  }
+
+  const DELIV_PILL = {
+    done: ["status-complete", "Complete"],
+    overdue: ["status-blocked", "Overdue"],
+    open: ["status-in-progress", "Open"]
+  };
+
   function itemStatus(item) {
     const stages = item.stages || [];
     const submission = stages[stages.length - 1];
     if (submission && submission.actual) return "complete";
     if (stages.some((s) => stageStatus(s) === "overdue")) return "blocked";
+    if ((item.deliverables || []).some((d) => deliverableStatus(d) === "overdue")) return "blocked";
     if (stages.some((s) => s.actual)) return "in-progress";
     return "not-started";
   }
@@ -208,7 +233,10 @@
         const deptText = Object.keys(item.departments || {})
           .map((d) => d + " " + item.departments[d])
           .join(" ");
-        const haystack = [item.title, item.number, item.client, item.lead, item.submissionMethod, deptText]
+        const delivText = (item.deliverables || [])
+          .map((d) => [d.itemNo, d.description, d.owner].join(" "))
+          .join(" ");
+        const haystack = [item.title, item.number, item.client, item.lead, item.submissionMethod, deptText, delivText]
           .join(" ")
           .toLowerCase();
         if (!haystack.includes(q)) return false;
@@ -221,6 +249,58 @@
     const filtered = getFilteredItems();
     renderTable(filtered);
     renderByDepartment();
+    renderUnassigned();
+  }
+
+  function renderDeliverableSummary(item) {
+    const list = item.deliverables || [];
+    if (!list.length) return '<span class="task-meta">None logged</span>';
+    const done = list.filter((d) => deliverableStatus(d) === "done").length;
+    const overdue = list.filter((d) => deliverableStatus(d) === "overdue").length;
+    return (
+      "<div>" + done + " of " + list.length + " done</div>" +
+      (overdue ? '<div class="deliv-overdue">' + overdue + " overdue</div>" : "")
+    );
+  }
+
+  function renderDeliverableTable(list, emptyText) {
+    if (!list.length) return '<p class="task-meta">' + escapeHtml(emptyText) + "</p>";
+    const rows = list
+      .map((d) => {
+        const [cls, label] = DELIV_PILL[deliverableStatus(d)];
+        const docUrl = d.linkUrl || (looksLikeUrl(d.linkText) ? d.linkText : "");
+        const doc = d.linkText || d.linkUrl
+          ? docUrl
+            ? '<a href="' + escapeAttr(docUrl) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(d.linkText || d.linkUrl) + "</a>"
+            : escapeHtml(d.linkText)
+          : "—";
+        const status = d.status && !/^(open|closed)$/i.test(d.status) ? '<div class="task-meta">' + escapeHtml(d.status) + "</div>" : "";
+        return (
+          "<tr><td>" + escapeHtml(d.itemNo || "—") + "</td><td>" + escapeHtml(d.description || "—") + "</td><td>" +
+          doc + "</td><td>" + escapeHtml(d.owner || "—") + "</td><td>" + escapeHtml(d.dueDate || "—") +
+          '</td><td><span class="status-pill ' + cls + '">' + label + "</span>" + status + "</td></tr>"
+        );
+      })
+      .join("");
+    return (
+      '<table class="detail-stage-table"><thead><tr><th>Item No.</th><th>Description</th><th>Document / Ref</th><th>Owner</th><th>Due</th><th>Status</th></tr></thead><tbody>' +
+      rows +
+      "</tbody></table>"
+    );
+  }
+
+  function renderUnassigned() {
+    if (!els.unassignedRoot) return;
+    if (!state.unassigned.length) {
+      els.unassignedRoot.hidden = true;
+      els.unassignedRoot.innerHTML = "";
+      return;
+    }
+    els.unassignedRoot.hidden = false;
+    els.unassignedRoot.innerHTML =
+      "<h2>Deliverables not linked to an RFP</h2>" +
+      '<p class="task-meta">Set <strong>RFP Title Confirmation</strong> on these rows to the exact RFP Title so they appear under that proposal.</p>' +
+      renderDeliverableTable(state.unassigned, "");
   }
 
   function renderDeptChips(item) {
@@ -269,14 +349,15 @@
       })
       .join("");
 
+    const refUrl = item.referenceDocsUrl || (looksLikeUrl(item.referenceDocs) ? item.referenceDocs : "");
     const refDocs = item.referenceDocs
-      ? looksLikeUrl(item.referenceDocs)
-        ? '<a href="' + escapeAttr(item.referenceDocs) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(item.referenceDocs) + "</a>"
+      ? refUrl
+        ? '<a href="' + escapeAttr(refUrl) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(item.referenceDocs) + "</a>"
         : escapeHtml(item.referenceDocs)
       : "—";
 
     return (
-      '<tr class="detail-row"><td colspan="8">' +
+      '<tr class="detail-row"><td colspan="9">' +
       '<div class="detail-grid">' +
       "<div><span class=\"toolbar-label\">Submission Method</span><div>" + escapeHtml(item.submissionMethod || "—") + "</div></div>" +
       "<div><span class=\"toolbar-label\">Reference Documentation</span><div>" + refDocs + "</div></div>" +
@@ -284,6 +365,11 @@
       '<table class="detail-stage-table"><thead><tr><th>Stage</th><th>Planned</th><th>Actual</th><th>Status</th></tr></thead><tbody>' +
       stageRows +
       "</tbody></table>" +
+      '<h3 class="detail-heading">Deliverables</h3>' +
+      renderDeliverableTable(
+        item.deliverables || [],
+        "No deliverables logged yet. Add them in Smartsheet with RFP Title Confirmation set to this RFP's title."
+      ) +
       "</td></tr>"
     );
   }
@@ -318,6 +404,7 @@
           "<td>" + renderDeptChips(item) + "</td>" +
           "<td>" + escapeHtml(item.submissionDeadline || "—") + "</td>" +
           "<td>" + renderStageStepper(item) + "</td>" +
+          "<td>" + renderDeliverableSummary(item) + "</td>" +
           '<td><span class="status-pill status-' + slug + '">' + STATUS_LABELS[slug] + "</span></td>" +
           '<td><button type="button" class="text-button detail-toggle" data-id="' +
           escapeAttr(item.id) +
@@ -330,7 +417,7 @@
 
     els.matrixRoot.innerHTML =
       '<div class="matrix-table-wrap"><table class="matrix-table"><thead><tr>' +
-      "<th>RFP</th><th>Client</th><th>Lead</th><th>Departments</th><th>Deadline</th><th>Pipeline</th><th>Status</th><th>Details</th>" +
+      "<th>RFP</th><th>Client</th><th>Lead</th><th>Departments</th><th>Deadline</th><th>Pipeline</th><th>Deliverables</th><th>Status</th><th>Details</th>" +
       "</tr></thead><tbody>" +
       rows +
       "</tbody></table></div>";

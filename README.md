@@ -5,16 +5,23 @@ and displayed as a static site - same pipeline as the
 [Marine Ops Schedule](https://github.com/Sea-Centric-Inc/Marine-Ops.-Schedule)
 site.
 
-Each row in the sheet is a proposal. The sheet tracks two things per
+Each row with an RFP Title is a proposal. The sheet tracks three things per
 proposal:
 
 1. **Which departments are accountable for it** (Human Resources,
    Operations, HSEQ, Business Development, IT, Finance, Other) - this is the
    actual "matrix" part: proposals x departments.
-2. **An 8-stage review pipeline** (Kick-Off Meeting → Compliance Review →
-   Technical Review → Commercial Review → Draft Review → Final Review →
-   Executive Approval → Submission), each stage with a planned date and an
-   actual date.
+2. **A 6-stage review pipeline** (Kick-Off Meeting → Compliance Review →
+   Draft Review → Final Review → Executive Approval → Submission), each stage
+   with a planned date and an actual date.
+3. **Deliverables** - rows with Item No. / Description / Document / Ref Link
+   / Owner / Due Date / Status / Complete?. Each deliverable attaches to the
+   proposal named in its **RFP Title Confirmation** cell (or the row's own
+   RFP Title if that's blank). Deliverables that don't match any proposal
+   are listed in a "not linked to an RFP" panel so they can be fixed.
+
+The site reads the **refined** sheet (`5706430201155460`). The original
+sheet (`5358166513504132`, 8 stages, no deliverables) is no longer used.
 
 ## How it works
 
@@ -31,35 +38,41 @@ Smartsheet  --(GitHub Action, every 30 min)-->  data/matrix-data.json  --> index
 - `index.html` / `app.js` / `style.css` are a plain static site (no build
   step) that reads `data/matrix-data.json` and renders the table.
 
-Right now `data/matrix-data.json` contains sample data so you can see the
-page working immediately. The live Smartsheet (`Accountability Matrix`,
-sheet ID `5358166513504132`) currently has 5 blank rows - once real
-proposals are added there, running the sync will overwrite the sample data.
+The sheet ID lives in `config/smartsheet-map.json` (`"sheetId"`), so
+switching sheets is a config change, not a secret change. The
+`SMARTSHEET_SHEET_ID` secret is only used as a fallback if that key is
+removed.
 
 ## Features
 
 - **Proposal table** - one row per RFP: title/number (linked to the
   Smartsheet row), client, proposal lead, accountable departments (as
   chips - `Department: assigned person`, or just the department name if the
-  cell only holds a checkmark), submission deadline, an 8-dot pipeline
+  cell only holds a checkmark), submission deadline, a 6-dot pipeline
   stepper, and an overall status pill.
+- **Deliverables column** - "N of M done", plus a red "N overdue" line when
+  any deliverable is past its Due Date without Complete? ticked or a Closed
+  status. The Details panel lists each deliverable with its owner, due date,
+  document link and status.
 - **Pipeline stepper** - one dot per stage, colored by that stage's own
   state: green = done on time, gold = done late (actual after planned), red
   = overdue (planned date has passed with no actual date yet), gray =
   pending. Hover a dot for the stage name and both dates.
 - **Details** - every row has a "Details" toggle that expands to show every
   remaining column that doesn't fit in the compact table view: Submission
-  Method, Reference Documentation (rendered as a link if it's a URL), and
-  the full 8-stage table with Planned/Actual dates and a status label per
-  stage. Nothing in the sheet is hidden - everything either shows in the
+  Method, Reference Documentation (rendered as a link if it's a URL or a
+  Smartsheet hyperlink), the full 6-stage table with Planned/Actual dates
+  and a status label per stage, and the deliverables table. Nothing in the sheet is hidden - everything either shows in the
   table or in this expanded panel.
-- **New RFP Entry** - header button opens the Smartsheet intake form
-  (`019f3c59e4c5713a9f9bc7bef1b75e0e`) in a new tab, so anyone can add a
-  proposal straight into the same sheet this site reads from. Edit the
-  `href` on that link in `index.html` if the form URL ever changes.
+- **New RFP Entry / New Item Entry** - header buttons open the sheet's two
+  Smartsheet forms in a new tab: the general entry form
+  (`01a19d039c827073a527ce22630846d7`) adds a proposal, and the item entry
+  form (`01a19d03a0f175189a6d008388b3a56e`) adds a deliverable. Both write
+  to the same sheet this site reads from. Edit the `href`s in `index.html`
+  if the form URLs ever change.
 - **Overall status** (derived, see `itemStatus()` in `app.js`):
   - **Submitted** - the final "Submission" stage has an actual date.
-  - **At Risk** - any stage is overdue.
+  - **At Risk** - any stage or deliverable is overdue.
   - **In Progress** - at least one stage has an actual date, none overdue.
   - **Not Started** - no stage has an actual date yet.
 - **Search, status filter, department filter, hide-submitted** - the
@@ -95,7 +108,10 @@ Repo **Settings → Secrets and variables → Actions → New repository secret*
 | Name | Value |
 |---|---|
 | `SMARTSHEET_ACCESS_TOKEN` | a Smartsheet API access token (Smartsheet → avatar → Apps & Integrations → API Access) |
-| `SMARTSHEET_SHEET_ID` | `5358166513504132` |
+| `SMARTSHEET_SHEET_ID` | optional fallback - the sheet ID normally comes from `config/smartsheet-map.json` |
+
+The token must belong to a Smartsheet user who can view the sheet in
+`config/smartsheet-map.json`.
 
 **Not set automatically** - `gh` CLI wasn't available when this repo was set
 up, so these two secrets need to be added through the GitHub UI by someone

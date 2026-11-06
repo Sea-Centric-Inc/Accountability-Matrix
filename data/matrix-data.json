@@ -1,69 +1,63 @@
 {
-  "generatedAt": "2026-11-02T10:17:51.035Z",
-  "source": "smartsheet",
-  "sheetName": "Accountability Matrix",
-  "items": [
-    {
-      "id": "7856356438048644",
-      "title": "t",
-      "number": "t",
-      "client": "t",
-      "lead": "",
-      "submissionMethod": "t",
-      "submissionDeadline": "",
-      "referenceDocs": "t",
-      "departments": {
-        "Human Resources": "t",
-        "Operations": "t",
-        "HSEQ": "t",
-        "Business Development": "t",
-        "IT": "t",
-        "Finance": "t",
-        "Other": "t"
-      },
-      "stages": [
-        {
-          "label": "Kick-Off Meeting",
-          "planned": "",
-          "actual": ""
-        },
-        {
-          "label": "Compliance Review",
-          "planned": "",
-          "actual": ""
-        },
-        {
-          "label": "Technical Review",
-          "planned": "",
-          "actual": ""
-        },
-        {
-          "label": "Commercial Review",
-          "planned": "",
-          "actual": ""
-        },
-        {
-          "label": "Draft Review",
-          "planned": "",
-          "actual": ""
-        },
-        {
-          "label": "Final Review",
-          "planned": "",
-          "actual": ""
-        },
-        {
-          "label": "Executive Approval",
-          "planned": "",
-          "actual": ""
-        },
-        {
-          "label": "Submission",
-          "planned": "",
-          "actual": ""
-        }
-      ],
-      "link": "https://app.smartsheet.com/sheets/fXCh32j56XWg27gGGvPPp59PJjvc7cFrqGpmfWJ1?rowId=7856356438048644"
-    }
-  ]
+    "generatedAt":  "2026-11-06T16:35:13.436Z",
+    "source":  "smartsheet",
+    "sheetName":  "Copy of Accountability Matrix Template",
+    "sheetLink":  "https://app.smartsheet.com/sheets/jGMqMP6V7JcqQp8G6v92c67Mx33CGjQppqp8VRQ1",
+    "items":  [
+                  {
+                      "id":  "385859224600452",
+                      "title":  "Wind LiDAR Buoy Deployment",
+                      "number":  "Email",
+                      "client":  "Fugro",
+                      "lead":  "Toni Fudge/Megan Murphy",
+                      "submissionMethod":  "Email",
+                      "submissionDeadline":  "2026-10-27",
+                      "referenceDocs":  "See Bids\u003eFleet Folder\u003e10-26_Fugro_LiDAR Buoy Deployment",
+                      "referenceDocsUrl":  "",
+                      "departments":  {
+                                          "Operations":  "Darryl Waterman/Stacey Maddox",
+                                          "HSEQ":  "Ashley Maher",
+                                          "Finance":  "Karla Connolly"
+                                      },
+                      "stages":  [
+                                     {
+                                         "label":  "Kick-Off Meeting",
+                                         "planned":  "2026-10-22",
+                                         "actual":  "2026-10-22"
+                                     },
+                                     {
+                                         "label":  "Compliance Review",
+                                         "planned":  "2026-10-22",
+                                         "actual":  "2026-10-22"
+                                     },
+                                     {
+                                         "label":  "Draft Review",
+                                         "planned":  "2026-10-26",
+                                         "actual":  ""
+                                     },
+                                     {
+                                         "label":  "Final Review",
+                                         "planned":  "2026-10-26",
+                                         "actual":  ""
+                                     },
+                                     {
+                                         "label":  "Executive Approval",
+                                         "planned":  "2026-10-27",
+                                         "actual":  ""
+                                     },
+                                     {
+                                         "label":  "Submission",
+                                         "planned":  "2026-10-27",
+                                         "actual":  ""
+                                     }
+                                 ],
+                      "deliverables":  [
+
+                                       ],
+                      "link":  "https://app.smartsheet.com/sheets/jGMqMP6V7JcqQp8G6v92c67Mx33CGjQppqp8VRQ1?rowId=385859224600452"
+                  }
+              ],
+    "unassignedDeliverables":  [
+
+                               ]
 }

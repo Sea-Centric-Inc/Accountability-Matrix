@@ -14,7 +14,9 @@
   </div>
   <div class="app-header-meta">
     <span id="generated-at"></span>
-    <a href="https://app.smartsheet.com/b/form/019f3c59e4c5713a9f9bc7bef1b75e0e" target="_blank" rel="noopener noreferrer" class="text-button no-print">New RFP Entry</a>
+    <a id="sheet-link" href="#" target="_blank" rel="noopener noreferrer" class="text-button no-print" hidden>Open Sheet</a>
+    <a href="https://app.smartsheet.com/b/form/01a19d039c827073a527ce22630846d7" target="_blank" rel="noopener noreferrer" class="text-button no-print">New RFP Entry</a>
+    <a href="https://app.smartsheet.com/b/form/01a19d03a0f175189a6d008388b3a56e" target="_blank" rel="noopener noreferrer" class="text-button no-print">New Item Entry</a>
     <button id="print-btn" type="button" class="text-button no-print">Print / Export PDF</button>
   </div>
 </header>
@@ -38,7 +40,7 @@
 <div class="legend">
   <span class="legend-item"><span class="swatch swatch-complete"></span>Submitted</span>
   <span class="legend-item"><span class="swatch swatch-in-progress"></span>In Progress</span>
-  <span class="legend-item"><span class="swatch swatch-blocked"></span>At Risk (overdue stage)</span>
+  <span class="legend-item"><span class="swatch swatch-blocked"></span>At Risk (overdue stage or deliverable)</span>
   <span class="legend-item"><span class="swatch swatch-not-started"></span>Not Started</span>
   <span class="legend-item"><span class="stage-dot stage-dot-done"></span>Stage done</span>
   <span class="legend-item"><span class="stage-dot stage-dot-late"></span>Stage done late</span>
@@ -69,6 +71,8 @@
 <main id="matrix-root" class="matrix-root">
   <p class="status-message" id="status-message">Loading matrix data&hellip;</p>
 </main>
+
+<section id="unassigned-root" class="unassigned-panel" hidden></section>
 
 <footer class="app-footer no-print">
   <p>Data source: Smartsheet, synced via GitHub Actions. See <a href="README.md">README</a> for setup.</p>
